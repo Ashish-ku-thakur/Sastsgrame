@@ -8,7 +8,7 @@ let server = http.createServer(app);
 
 let io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_PORT,
     methods: ["GET", "POST"],
   },
 });
