@@ -6,7 +6,7 @@ const RightOtherUsers = ({isFollow, setIsFollow}) => {
 
 
   return (
-    <div className="w-full h-full border-[2px] border-red-800 overflow-y-scroll ">
+    <div className="w-full h-full border border-black overflow-y-scroll scrollbar-hidden">
       <div className="w-full h-[15%]">
         {otherUsers?.map((user) => (
           <RightOtherUser key={user?._id} otherUser={user} isFollow={isFollow} setIsFollow={setIsFollow} />

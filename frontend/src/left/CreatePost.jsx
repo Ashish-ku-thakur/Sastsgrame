@@ -12,6 +12,7 @@ import { POST_API } from "@/lib/utils";
 import { setAllPosts } from "@/redux/postSlicer";
 import { setAuthuser } from "@/redux/userSlicer";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -19,6 +20,7 @@ import { toast } from "sonner";
 const CreatePost = ({ open, setOpen }) => {
   let { authUser } = useSelector((store) => store?.auth);
   let { allPosts } = useSelector((store) => store?.frame);
+  let [isLoading, setIsLoading] = useState(false);
 
   let imageRef = useRef();
   let [selectImage, setSelectImage] = useState("");
@@ -49,6 +51,7 @@ const CreatePost = ({ open, setOpen }) => {
     return baseUri;
   };
 
+  // post create handler
   let postCreateHandler = async () => {
     let formdata = new FormData();
     formdata.append("text", areatext);
@@ -57,6 +60,7 @@ const CreatePost = ({ open, setOpen }) => {
     }
 
     try {
+      setIsLoading(true);
       let response = await axios.post(`${POST_API}/addnewpost`, formdata, {
         headers: {
           "Content-Type": "multipart-form/data",
@@ -84,6 +88,8 @@ const CreatePost = ({ open, setOpen }) => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -138,16 +144,22 @@ const CreatePost = ({ open, setOpen }) => {
                 onClick={() => imageRef?.current?.click()}
                 className="w-full my-2 bg-blue-500"
               >
-                Select From Computer
+                {imageUri ? "Change" : "Select From Computer"}
               </Button>
             </div>
-
-            <Button
-              onClick={postCreateHandler}
-              className="w-full my-2 bg-blue-500"
-            >
-              Post
-            </Button>
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </div>
+            ) : (
+              <Button
+                disabled={isLoading}
+                onClick={postCreateHandler}
+                className="w-full my-2 bg-blue-500"
+              >
+                Post
+              </Button>
+            )}
           </DialogDescription>
         </DialogHeader>
       </DialogContent>

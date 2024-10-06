@@ -98,10 +98,10 @@ const LeftBTN = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col justify-around">
+    <div className="w-full h-full flex flex-col justify-around border border-r-black">
       <div className="h-10 w-full  flex items-center justify-center">
         <img
-          className="h-10 w-10 object-cover w-24"
+          className="h-10 object-cover w-24"
           src={authUser?.profilePhoto}
           alt="logo"
         />

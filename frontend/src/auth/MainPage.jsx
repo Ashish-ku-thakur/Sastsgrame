@@ -22,10 +22,10 @@ const MainPage = () => {
 
   return (
     <div className="flex w-full h-screen">
-      <div className="w-[20%] border border-black h-[90vh]">
+      <div className="w-[20%]  h-[90vh]">
         <LeftBTN />
       </div>
-      <div className="w-[80%] border border-black h-full overflow-y-hidden">
+      <div className="w-[80%]  h-full overflow-y-hidden">
         <Outlet />
       </div>
     </div>

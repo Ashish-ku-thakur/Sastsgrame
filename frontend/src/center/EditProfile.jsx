@@ -14,12 +14,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { USER_API } from "@/lib/utils";
 import { setAuthuser } from "@/redux/userSlicer";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 
 const EditProfile = () => {
   let { authUser } = useSelector((state) => state?.auth);
+  let [isLoading, setIsLoading] = useState(false)
   let imageRef = useRef();
   let [imageUri, setImageUri] = useState("");
   let [addBio, setAddBio] = useState("");
@@ -34,9 +36,11 @@ const EditProfile = () => {
 
   let dispatch = useDispatch();
 
+  // edit profile handler
   let EditProfilehandler = async () => {
     // console.log(imageUri, addBio, addGender);
     try {
+      setIsLoading(true)
       let formData = new FormData();
       if (imageUri) formData.append("image", imageUri);
       if (addBio) formData.append("bio", addBio);
@@ -59,11 +63,13 @@ const EditProfile = () => {
       }
     } catch (error) {
       console.log(error);
+    }finally{
+      setIsLoading(false)
     }
   };
   return (
     <div className="w-[80%] p-5">
-      <div className="w-full flex items-center justify-between border border-black">
+      <div className="w-full flex items-center justify-between ">
         <div className="w-full">
           <p className="font-semibold text-2xl mb-4">Edit Profile</p>
 
@@ -127,8 +133,18 @@ const EditProfile = () => {
         </Select>
       </div>
 
-      <Button onClick={EditProfilehandler} className="w-full bg-blue-500 my-6">
-        Submit
+      <Button
+        onClick={EditProfilehandler}
+        disabled={isLoading}
+        className="w-full bg-blue-500 my-6"
+      >
+        {isLoading ? (
+          <div className="flex items-center justify-center">
+            <Loader2 className="w-4 h-4 animate-spin" />
+          </div>
+        ) : (
+          "Submit"
+        )}
       </Button>
     </div>
   );

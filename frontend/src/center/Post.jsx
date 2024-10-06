@@ -12,6 +12,7 @@ import {
   Bookmark,
   BookmarkCheckIcon,
   Heart,
+  Loader2,
   MessageCircle,
   MoreHorizontal,
 } from "lucide-react";
@@ -47,6 +48,7 @@ const Post = ({ post, isFollow, setIsFollow }) => {
   let [isBookmarked, setIsBookmarked] = useState(
     post?.saved?.includes(authUser?._id) || false
   );
+  let [isLoading, setIsLoading] = useState(false)
  
   let dispatch = useDispatch();
 
@@ -118,12 +120,13 @@ const Post = ({ post, isFollow, setIsFollow }) => {
       }
     } catch (error) {
       console.log(error);
-    }
+    } 
   };
 
   // create comment handler
   let commentCreateHandler = async (id) => {
     try {
+      setIsLoading(true);
       let response = await axios.post(
         `${COMMENT_API}/createComment/${id}`,
         { text: commentText },
@@ -177,6 +180,8 @@ const Post = ({ post, isFollow, setIsFollow }) => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -332,14 +337,14 @@ const Post = ({ post, isFollow, setIsFollow }) => {
   return (
     <div
       onClick={() => dispatch(setSelectedUser(post?.author))}
-      className="w-full flex justify-center mt-6"
+      className="w-full flex justify-center mt-6 shadow-2xl"
     >
       <div
         onClick={() => setSelectedPostHandler(post)}
-        className="w-[45%] flex flex-col border border-black shadow-2xl p-3"
+        className="w-[60%] flex flex-col px-8 shadow-2xl p-3"
       >
         {/* avatar bio description  ...*/}
-        <div className="flex items-center justify-between w-full border border-black">
+        <div className="flex items-center justify-between w-full my-2">
           {/* avatar bio description */}
           <div className="flex gap-3">
             {/* avatar */}
@@ -470,14 +475,25 @@ const Post = ({ post, isFollow, setIsFollow }) => {
         </div>
 
         {/* add comment */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <Input
             placeholder="Add Comment.."
             className="focus-visible:ring-transparent"
             value={commentText}
             onChange={(e) => setCommentText(e?.target?.value)}
           />
-          <Button onClick={() => commentCreateHandler(post?._id)}>Post</Button>
+          <Button
+            disabled={isLoading}
+            onClick={() => commentCreateHandler(post?._id)}
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </div>
+            ) : (
+              "Post"
+            )}
+          </Button>
         </div>
 
         {/* comment dialog */}

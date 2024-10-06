@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { USER_API } from "@/lib/utils";
 import { setAuthuser } from "@/redux/userSlicer";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +12,7 @@ import { toast } from "sonner";
 
 const Signup = () => {
   let [isSignin, setIsSignin] = useState(true);
+  let [isLoading, setIsLoading] = useState(false);
 
   let [text, setText] = useState({
     fullname: "",
@@ -28,12 +30,12 @@ const Signup = () => {
     setText({ ...text, [e?.target?.name]: e?.target?.value });
   };
 
-  
   // new user created
   let formSubmitHandler = async (e) => {
     e?.preventDefault();
 
     try {
+      setIsLoading(true);
       let response = await axios.post(`${USER_API}/register`, text, {
         headers: {
           "Content-Type": "application/json",
@@ -49,6 +51,8 @@ const Signup = () => {
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message);
+    } finally {
+      setIsLoading(false);
     }
   };
   // login user
@@ -56,6 +60,7 @@ const Signup = () => {
     e?.preventDefault();
 
     try {
+      setIsLoading(true);
       let response = await axios.post(`${USER_API}/login`, text, {
         withCredentials: true,
       });
@@ -68,6 +73,8 @@ const Signup = () => {
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -185,12 +192,19 @@ const Signup = () => {
           </div>
 
           {/* SUBMIT BTN */}
-          <Button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-800 text-xl"
-          >
-            {isSignin == false ? "Login" : "Sign up"}
-          </Button>
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <Loader2 className="w-4 h-4 animate-spin" />
+            </div>
+          ) : (
+            <Button
+              disabled={isLoading}
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-800 text-xl"
+            >
+              {isSignin == false ? "Login" : "Sign up"}
+            </Button>
+          )}
         </div>
       </form>
     </div>

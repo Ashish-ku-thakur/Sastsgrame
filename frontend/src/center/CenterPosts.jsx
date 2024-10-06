@@ -15,13 +15,13 @@ const CenterPosts = () => {
 
   return (
     <div className="w-full h-full flex">
-      <div className="w-[65%] h-full overflow-y-scroll ">
+      <div className="w-[65%] h-full overflow-y-scroll scrollbar-hidden">
         {allPosts?.map((post) => (
           <Post key={post?._id} post={post}  isFollow={isFollow} setIsFollow={setIsFollow} />
         ))}
       </div>
 
-      <div className="w-[35%] border border-black h-full">
+      <div className="w-[35%] border border-l-black h-full">
         <RightSide isFollow={isFollow} setIsFollow={setIsFollow}/>
       </div>
     </div>

@@ -7,21 +7,16 @@ import {
   setSelectedUser,
 } from "@/redux/userSlicer";
 import axios from "axios";
-import {  useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 const RightOtherUser = ({ otherUser, isFollow, setIsFollow }) => {
-  let { authUser, otherUsers, selectedUser } = useSelector(
+  let { authUser, otherUsers } = useSelector(
     (store) => store?.auth
   );
 
   let dispatch = useDispatch();
-
-  // let [isFollow, setIsFollow] = useState(
-  //   otherUser?.followers?.includes(authUser?._id) || false
-  // );
 
   // follow the user
   let userFollowHandler = async (id) => {
@@ -109,16 +104,15 @@ const RightOtherUser = ({ otherUser, isFollow, setIsFollow }) => {
   };
 
   return (
-    <div className="border border-black w-full h-full ">
+    <div className=" w-full h-full ">
       <div className="w-full h-full ">
         <div
           onClick={() => {
             selectUser(otherUser);
-            // selectedPersonHandler(otherUser);
           }}
           className="w-full flex justify-between items-center my-3 hover:bg-zinc-200 px-3 rounded-xl"
         >
-          <Link to={`/profile/${selectedUser?._id}`} className="flex gap-3">
+          <Link to={`/profile/${otherUser?._id}`} className="flex gap-3">
             {/* avatar */}
             <div className="w-16 h-16">
               <Avatar className="w-full h-full">

@@ -7,7 +7,7 @@ const RightTop = () => {
   let { authUser } = useSelector((store) => store?.auth);
   let dispatch = useDispatch();
   return (
-    <div className="border border-black">
+    <div className="">
       <div className="flex gap-3">
         {/* avatar */}
         <div onClick={() => dispatch(setSelectedUser(authUser))}>
@@ -22,11 +22,11 @@ const RightTop = () => {
         {/* discription */}
         <div className="flex gap-2 items-center">
           <p>{authUser?.fullname}</p>
-          <p>{authUser?.bio}</p>
+          <p className="text-sm text-gray-500">{authUser?.bio}</p>
         </div>
       </div>
 
-      <hr className="border border-black m-2" />
+      <hr className=" m-2" />
 
       <div className="w-full text-center font-semibold my-2">
         <p>See All Recomendation</p>

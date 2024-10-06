@@ -1,6 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
@@ -9,20 +8,19 @@ import FramePost from "./FramePost";
 
 const Profile = () => {
   let [clickText, setClickText] = useState("POSTS");
-  // console.log(clickText);
+
   let { authUser, selectedUser } = useSelector((store) => store?.auth);
   let { id } = useParams();
 
-
   return (
-    <div className="w-full h-screen border border-black">
+    <div className="w-full h-screen ">
       {/* top */}
-      <div className="w-full  min-h-[300px] flex items-center gap-4 border border-black">
+      <div className="w-full  min-h-[300px] flex items-center gap-4 ">
         {/* avatar */}
         <div className="w-1/2  flex items-center justify-center">
           <Avatar className="h-44 w-44">
             <AvatarImage
-              className="w-full h-full border border-black"
+              className="w-full h-full "
               src={selectedUser?.profilePhoto}
             />
             <AvatarFallback>CN</AvatarFallback>
@@ -69,15 +67,15 @@ const Profile = () => {
           </div>
 
           <div className="w-fit">
-            <div>bio Hy i am ashish</div>
+            <div>{selectedUser?.bio}</div>
             <div className="bg-zinc-400 rounded-full text-center font-semibold">
-              @ <span>Ashish</span>
+              @ <span>{selectedUser?.fullname}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <hr className="border border-black my-4 mx-2" />
+      <hr className=" my-4 mx-2" />
 
       {/* text posts saved */}
       <div className="flex gap-6 w-full items-center justify-center">

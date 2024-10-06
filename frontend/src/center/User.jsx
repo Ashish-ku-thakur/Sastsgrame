@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 const User = ({ person, setSelectPerson }) => {
-  let {  onlineUsers, selectedPerson } = useSelector((store) => store?.auth);
+  let { onlineUsers, selectedPerson } = useSelector((store) => store?.auth);
   let [isOnline, setIsOnline] = useState(
     onlineUsers.includes(person?._id) || false
   );
 
+  // online user
   useEffect(() => {
     setIsOnline(onlineUsers.includes(person?._id) || false);
   }, [person?._id, onlineUsers]);

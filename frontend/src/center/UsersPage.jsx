@@ -13,21 +13,24 @@ import { MESSAGE_API } from "@/lib/utils";
 import { setChats } from "@/redux/chatSlicer";
 import { toast } from "sonner";
 import useGetAllMessage from "@/hooks/useGetAllMessages";
-import { MessageCircle } from "lucide-react";
+import { Loader2, MessageCircle } from "lucide-react";
 
 const UsersPage = () => {
   useGetAllMessage();
   let [messageText, setMessageText] = useState(null);
-  let { otherUsers, authUser } = useSelector((store) => store?.auth);
+  let { otherUsers, authUser, selectedPerson } = useSelector((store) => store?.auth);
   let [selectPerson, setSelectPerson] = useState(null);
+  let [isLoading, setIsLoading] = useState(false);
 
   let dispatch = useDispatch();
   dispatch(setSelectedPerson(selectPerson));
 
   let { chats } = useSelector((store) => store?.chat);
 
+  // send message
   let handleSendMessage = async () => {
     try {
+      setIsLoading(true);
       let response = await axios.post(
         `${MESSAGE_API}/messagecreate/${selectPerson?._id}`,
         {
@@ -48,6 +51,8 @@ const UsersPage = () => {
       }
     } catch (error) {
       toast?.error(error?.response?.data?.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -61,9 +66,9 @@ const UsersPage = () => {
           </p>
         </div>
 
-        <hr className=" border border-black m-2" />
+        <hr className="  m-2" />
 
-        <div className="border border-black w-full h-[80%] overflow-y-scroll scrollbar-hidden">
+        <div className=" w-full h-[80%] overflow-y-scroll scrollbar-hidden">
           {otherUsers?.map((person) => (
             <User
               key={person?._id}
@@ -75,9 +80,9 @@ const UsersPage = () => {
       </div>
 
       {/* right default page */}
-      {!selectPerson && (
+      {!selectedPerson && (
         <div className="w-[60%] h-full flex items-center justify-center">
-          <div className="border border-black">
+          <div className="">
             <div className="w-full flex flex-col items-center">
               <MessageCircle className="w-40 h-40" />
               <p className="text-center font-bold text-2xl">Your Messages</p>
@@ -90,27 +95,27 @@ const UsersPage = () => {
       )}
 
       {/* right not default */}
-      <div className="w-[58%] h-full border border-black">
+      <div className="w-[58%] h-full ">
         {/* avatar & detail */}
         <div className="h-[10%] w-full flex gap-2 items-center mx-2">
           <Avatar className="w-14 h-14">
             <AvatarImage
               className="w-full h-full"
-              src="https://github.com/shadcn.png"
+              src={selectedPerson?.profile}
               alt="ar"
             />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
 
           <div>
-            <p>Ash</p>
+            <p>{selectPerson?.fullname}</p>
           </div>
         </div>
 
-        <hr className="border border-black mx-2" />
+        <hr className=" mx-2" />
 
         {/* All messages */}
-        <div className="w-full h-[84%] border border-black overflow-y-scroll">
+        <div className="w-full h-[84%]  overflow-y-scroll scrollbar-hidden">
           <Messages />
         </div>
 
@@ -122,8 +127,18 @@ const UsersPage = () => {
             onChange={(e) => setMessageText(e?.target?.value)}
             placeholder="Add Message..."
           />
-          <Button onClick={handleSendMessage} className="bg-blue-500">
-            Send
+          <Button
+            disabled={isLoading}
+            onClick={handleSendMessage}
+            className="bg-blue-500"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </div>
+            ) : (
+              "Send"
+            )}
           </Button>
         </div>
       </div>

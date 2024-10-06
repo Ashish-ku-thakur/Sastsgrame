@@ -99,10 +99,10 @@ let CommentDialog = ({ show, setShow, Post, commentCount, setCommentCount }) => 
               </div>
             </div>
 
-            <hr className="mt-4 border border-black" />
+            <hr className="mt-4 " />
 
             <div className="h-[88%] overflow-y-hidden flex flex-col mt-2">
-              <div className="w-full h-[88%] px-3  overflow-y-scroll flex flex-col flex-1 border border-black scrollbar-hidden">
+              <div className="w-full h-[88%] px-3  overflow-y-scroll flex flex-col flex-1  scrollbar-hidden">
                 {allComments?.comments?.map((com) => {
                   return (
                     <div
@@ -115,7 +115,7 @@ let CommentDialog = ({ show, setShow, Post, commentCount, setCommentCount }) => 
                 })}
               </div>
 
-              <div className="h-[10%] border border-black flex items-center mt-2">
+              <div className="h-[10%]  flex items-center mt-2">
                 <Input
                   type="text"
                   placeholder="Add post."
