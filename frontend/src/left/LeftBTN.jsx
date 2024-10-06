@@ -101,8 +101,8 @@ const LeftBTN = () => {
     <div className="w-full h-full flex flex-col justify-around">
       <div className="h-10 w-full  flex items-center justify-center">
         <img
-          className="h-10 w-10 object-cover"
-          src="https://github.com/shadcn.png"
+          className="h-10 w-10 object-cover w-24"
+          src={authUser?.profilePhoto}
           alt="logo"
         />
       </div>

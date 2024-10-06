@@ -12,23 +12,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
-const RightOtherUser = ({ otherUser }) => {
+const RightOtherUser = ({ otherUser, isFollow, setIsFollow }) => {
   let { authUser, otherUsers, selectedUser } = useSelector(
     (store) => store?.auth
   );
 
   let dispatch = useDispatch();
 
-  let [isFollow, setIsFollow] = useState(
-    otherUser?.followers?.includes(authUser?._id) || false
-  );
+  // let [isFollow, setIsFollow] = useState(
+  //   otherUser?.followers?.includes(authUser?._id) || false
+  // );
 
   // follow the user
   let userFollowHandler = async (id) => {
     try {
       axios.defaults.withCredentials = true;
       let response = await axios.patch(`${USER_API}/followtheuser/${id}`);
-      console.log(response?.data);
 
       if (response?.data?.success) {
         toast?.success(response?.data?.message);
@@ -39,7 +38,7 @@ const RightOtherUser = ({ otherUser }) => {
           following: [...authUser.following, id], // Adding the otherUser's id
         };
         dispatch(setAuthuser(updatedAuthUser));
-        setIsFollow(true); // Update isFollow state to true
+        setIsFollow(!isFollow); // Update isFollow state to true
 
         // Find the index of the user in otherUsers
         let userIndex = otherUsers?.findIndex((user) => user?._id === id);
@@ -79,7 +78,7 @@ const RightOtherUser = ({ otherUser }) => {
           following: [...authUser.following.filter((ids) => ids != id)],
         };
         dispatch(setAuthuser(updateAuthUser));
-        setIsFollow(false);
+       setIsFollow(!isFollow);
 
         let userIndex = otherUsers?.findIndex((user) => user?._id == id); // get the index of the user
 

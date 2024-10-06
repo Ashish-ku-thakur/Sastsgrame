@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 // import useRTSandesh from "@/hooks/useRTSandesh";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { setSelectedPerson } from "@/redux/userSlicer";
 import axios from "axios";
 import { MESSAGE_API } from "@/lib/utils";
@@ -17,7 +17,7 @@ import useGetAllMessage from "@/hooks/useGetAllMessages";
 const UsersPage = () => {
   useGetAllMessage();
   let [messageText, setMessageText] = useState(null);
-  let { otherUsers } = useSelector((store) => store?.auth);
+  let { otherUsers, authUser } = useSelector((store) => store?.auth);
   let [selectPerson, setSelectPerson] = useState(null);
 
   let dispatch = useDispatch();
@@ -55,7 +55,7 @@ const UsersPage = () => {
       {/* left user page */}
       <div className="w-[40%] h-full">
         <div className="w-full h-[8%] flex items-center justify-center">
-          <p className="w-full text-center font-semibold">Ashish</p>
+          <p className="w-full text-center font-semibold">{authUser?.fullname}</p>
         </div>
 
         <hr className=" border border-black m-2" />

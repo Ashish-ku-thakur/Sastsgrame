@@ -31,7 +31,7 @@ import { setAllComments, setAllPosts, setSelectPost } from "@/redux/postSlicer";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 
-const Post = ({ post, otherUser }) => {
+const Post = ({ post, isFollow, setIsFollow }) => {
   let [commentText, setCommentText] = useState("");
   let { allComments, allPosts } = useSelector((store) => store?.frame);
   let { authUser, otherUsers, selectedUser } = useSelector(
@@ -47,11 +47,7 @@ const Post = ({ post, otherUser }) => {
   let [isBookmarked, setIsBookmarked] = useState(
     post?.saved?.includes(authUser?._id) || false
   );
-
-  let [isFollow, setIsFollow] = useState(
-    post?.author?.followers?.includes(authUser?._id) || false
-  );
-
+ 
   let dispatch = useDispatch();
 
   let changeState = (Post) => {
@@ -250,8 +246,7 @@ const Post = ({ post, otherUser }) => {
     }
   };
 
- 
-
+  // follow the user
   let userFollowHandler = async (id) => {
     console.log(id);
     try {
@@ -268,7 +263,7 @@ const Post = ({ post, otherUser }) => {
           following: [...authUser.following, id], // Adding the otherUser's id
         };
         dispatch(setAuthuser(updatedAuthUser));
-        setIsFollow(true); // Update isFollow state to true
+        setIsFollow(!isFollow); // Update isFollow state to true
 
         // Find the index of the user in otherUsers
         let userIndex = otherUsers?.findIndex((user) => user?._id === id);
@@ -308,7 +303,7 @@ const Post = ({ post, otherUser }) => {
           following: [...authUser.following.filter((ids) => ids != id)],
         };
         dispatch(setAuthuser(updateAuthUser));
-        setIsFollow(false);
+        setIsFollow(!isFollow);
 
         let userIndex = otherUsers?.findIndex((user) => user?._id == id); // get the index of the user
 
@@ -333,21 +328,27 @@ const Post = ({ post, otherUser }) => {
       console.log(error);
     }
   };
- 
+
   return (
-    <div className="w-full flex justify-center mt-6">
+    <div
+      onClick={() => dispatch(setSelectedUser(post?.author))}
+      className="w-full flex justify-center mt-6"
+    >
       <div
         onClick={() => setSelectedPostHandler(post)}
         className="w-[45%] flex flex-col border border-black shadow-2xl p-3"
       >
+        {/* avatar bio description  ...*/}
         <div className="flex items-center justify-between w-full border border-black">
-          {/* avatar bio */}
+          {/* avatar bio description */}
           <div className="flex gap-3">
             {/* avatar */}
-            <Avatar>
-              <AvatarImage src={post?.author?.profilePhoto} />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            <Link to={`/profile/${post?.author?._id}`}>
+              <Avatar>
+                <AvatarImage src={post?.author?.profilePhoto} />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            </Link>
 
             {/* description */}
             <div className="flex gap-2 items-center">
@@ -468,6 +469,7 @@ const Post = ({ post, otherUser }) => {
           </div>
         </div>
 
+        {/* add comment */}
         <div className="flex items-center">
           <Input
             placeholder="Add Comment.."
@@ -477,6 +479,8 @@ const Post = ({ post, otherUser }) => {
           />
           <Button onClick={() => commentCreateHandler(post?._id)}>Post</Button>
         </div>
+
+        {/* comment dialog */}
       </div>
       <div>
         <CommentDialog
