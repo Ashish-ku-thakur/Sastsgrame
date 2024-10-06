@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 const User = ({ person, setSelectPerson }) => {
-  let { selectedUser, onlineUsers } = useSelector((store) => store?.auth);
+  let {  onlineUsers, selectedPerson } = useSelector((store) => store?.auth);
   let [isOnline, setIsOnline] = useState(
     onlineUsers.includes(person?._id) || false
   );
@@ -15,7 +15,7 @@ const User = ({ person, setSelectPerson }) => {
     <div
       onClick={() => setSelectPerson(person)}
       className={`flex gap-3 items-center hover:bg-zinc-400 cursor-pointer rounded-xl m-3 ${
-        person?._id === selectedUser?._id ? "bg-zinc-400" : ""
+        person?._id === selectedPerson?._id ? "bg-zinc-400" : ""
       }`}
     >
       <Avatar className="w-16 h-16">
