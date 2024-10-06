@@ -8,6 +8,7 @@ let modifiedImageBuffer = async (file) => {
     .toFormat("jpeg", { quality: 80 })
     .toBuffer();
 
+
   let parser = new DataURIParser();
   let extname = path.extname(file.originalname);
 

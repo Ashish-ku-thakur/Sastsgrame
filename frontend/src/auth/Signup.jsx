@@ -28,10 +28,7 @@ const Signup = () => {
     setText({ ...text, [e?.target?.name]: e?.target?.value });
   };
 
-  // useEffect(() => {
-  //   // dispatch(setOnlineUsers(onlineUsers.filter((elm) => elm._id != authUser._id)));
-  //   formSubmitHandler();
-  // }, [authUser?._id, setAuthuser]);
+  
   // new user created
   let formSubmitHandler = async (e) => {
     e?.preventDefault();

@@ -7,7 +7,7 @@ import {
   setSelectedUser,
 } from "@/redux/userSlicer";
 import axios from "axios";
-import { useState } from "react";
+import {  useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -108,9 +108,7 @@ const RightOtherUser = ({ otherUser }) => {
   let selectUser = (user) => {
     dispatch(setSelectedUser(user));
   };
-  // let selectedPersonHandler = (user) => {
-  //   dispatch(setSelectedPerson(user));
-  // };
+
   return (
     <div className="border border-black w-full h-full ">
       <div className="w-full h-full ">

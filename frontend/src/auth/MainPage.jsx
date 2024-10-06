@@ -2,12 +2,23 @@ import useGetAllComments from "@/hooks/useGetAllComments";
 import useGetAllPosts from "@/hooks/useGetAllPosts";
 import useGetOtherUsers from "@/hooks/useGetOtherUsers";
 import LeftBTN from "@/left/LeftBTN";
-import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { Outlet, useNavigate } from "react-router-dom";
 
 const MainPage = () => {
   useGetOtherUsers();
   useGetAllPosts();
   useGetAllComments();
+
+  let { authUser } = useSelector((state) => state.auth);
+  let navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authUser?._id) {
+      navigate("/signup");
+    }
+  }, [authUser?._id]);
 
   return (
     <div className="flex w-full h-screen">

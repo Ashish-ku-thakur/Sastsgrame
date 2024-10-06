@@ -7,7 +7,7 @@ import {
   PlusCircle,
   Search,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CreatePost from "./CreatePost";
 import { toast } from "sonner";
@@ -25,6 +25,8 @@ import { setAllComments, setAllPosts, setSelectPost } from "@/redux/postSlicer";
 import { setChats, setSocket } from "@/redux/chatSlicer";
 
 const LeftBTN = () => {
+  let { authUser } = useSelector((store) => store?.auth);
+
   let tabs = [
     { icon: <Home className="w-[30px] h-[40px]" />, text: "Home" },
     { icon: <Search className="w-[30px] h-[40px]" />, text: "Search" },
@@ -34,7 +36,7 @@ const LeftBTN = () => {
     {
       icon: (
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" />
+          <AvatarImage src={authUser?.profilePhoto} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
       ),
@@ -43,7 +45,6 @@ const LeftBTN = () => {
     { icon: <LogOutIcon className="w-[30px] h-[40px]" />, text: "Logout" },
   ];
 
-  let { authUser } = useSelector((store) => store?.auth);
 
   let [open, setOpen] = useState(false);
   let dispatch = useDispatch();

@@ -99,15 +99,15 @@ const CreatePost = ({ open, setOpen }) => {
               <Avatar className="w-16 h-16">
                 <AvatarImage
                   className="w-full h-full"
-                  src="https://github.com/shadcn.png"
+                  src={authUser?.profilePhoto}
                   alt=""
                 />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
 
               <div>
-                <p>Ashish</p>
-                <p>Bio ...</p>
+                <p>{authUser?.fullname}</p>
+                <p>{authUser?.bio}</p>
               </div>
             </div>
 

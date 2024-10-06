@@ -24,7 +24,7 @@ router.route("/unfollowtheuser/:id").patch(Authentication, UnFollowtheUser);
 router.route("/selecteduser/:id").get(Authentication, GetSelectedUserProfile);
 router
   .route("/edituserprofile")
-  .patch(Authentication, upload.single("profileImage"), EditUserProfile);
+  .patch(Authentication, upload.single("image"), EditUserProfile);
 router.route("/bookmark/:id").patch(Authentication, BookmarkthePost);
 
 export default router;

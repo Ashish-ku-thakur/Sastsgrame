@@ -200,7 +200,7 @@ export let GetAllPosta = async (req, res) => {
     let allPosts = await Post.find()
       .sort({ createdAt: -1 })
       .populate({ path: "comments" })
-      .populate({ path: "author", select: "fullname profilePhoto" });
+      .populate({ path: "author" });
 
     if (!allPosts) {
       return res.status(400).json({

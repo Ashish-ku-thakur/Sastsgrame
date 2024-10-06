@@ -8,27 +8,48 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Bookmark, Heart, MessageCircle, MoreHorizontal } from "lucide-react";
+import {
+  Bookmark,
+  BookmarkCheckIcon,
+  Heart,
+  MessageCircle,
+  MoreHorizontal,
+} from "lucide-react";
 import CommentDialog from "./CommentDialog";
 import { useState } from "react";
 import axios from "axios";
 import { COMMENT_API, POST_API, USER_API } from "@/lib/utils";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
-import { setAuthuser } from "@/redux/userSlicer";
+import {
+  setAuthuser,
+  setOtherUsers,
+  setSelectedUser,
+} from "@/redux/userSlicer";
 import { FaHeart } from "react-icons/fa";
 import { setAllComments, setAllPosts, setSelectPost } from "@/redux/postSlicer";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 
-const Post = ({ post }) => {
+const Post = ({ post, otherUser }) => {
   let [commentText, setCommentText] = useState("");
   let { allComments, allPosts } = useSelector((store) => store?.frame);
+  let { authUser, otherUsers, selectedUser } = useSelector(
+    (store) => store?.auth
+  );
 
   let [commentCount, setCommentCount] = useState(post?.comments?.length || 0);
   let [likeCount, setLikeCount] = useState(post?.likes?.length || 0);
   let [show, setShow] = useState(false);
-  let { authUser } = useSelector((store) => store?.auth);
   let [isLiked, setIsLiked] = useState(
     post?.likes?.includes(authUser?._id) || false
+  );
+  let [isBookmarked, setIsBookmarked] = useState(
+    post?.saved?.includes(authUser?._id) || false
+  );
+
+  let [isFollow, setIsFollow] = useState(
+    post?.author?.followers?.includes(authUser?._id) || false
   );
 
   let dispatch = useDispatch();
@@ -169,8 +190,6 @@ const Post = ({ post }) => {
       axios.defaults.withCredentials = true;
       let response = await axios.patch(`${USER_API}/bookmark/${id}`);
 
-      console.log(response?.data?.post);
-
       if (
         response?.data?.success &&
         response?.data?.message == "post is bookmarked"
@@ -179,7 +198,11 @@ const Post = ({ post }) => {
           ...authUser,
           bookmarks: [...authUser.bookmarks, response?.data?.post],
         };
-
+        let updateAllPosts = allPosts.map((po) =>
+          po?._id == id ? { ...po, saved: [...po.saved, authUser?._id] } : po
+        );
+        setIsBookmarked(true);
+        dispatch(setAllPosts(updateAllPosts));
         dispatch(setAuthuser(updateAuthuser));
         toast?.success(response?.data?.message);
       } else {
@@ -187,7 +210,16 @@ const Post = ({ post }) => {
           ...authUser,
           bookmarks: [...authUser.bookmarks.filter((pos) => pos?._id != id)],
         };
-
+        let updateAllPosts = allPosts.map((po) =>
+          po?._id == id
+            ? {
+                ...po,
+                saved: [...po.saved.filter((ids) => ids != authUser?._id)],
+              }
+            : po
+        );
+        setIsBookmarked(false);
+        dispatch(setAllPosts(updateAllPosts));
         dispatch(setAuthuser(updateAuthuser));
         toast?.success(response?.data?.message);
       }
@@ -195,6 +227,113 @@ const Post = ({ post }) => {
       console.log(error);
     }
   };
+
+  // delete post handler
+  let deletePostHandler = async (id) => {
+    try {
+      axios.defaults.withCredentials = true;
+      let response = await axios.delete(`${POST_API}/deletepost/${id}`);
+      if (response?.data?.success) {
+        toast?.success(response?.data?.message);
+        let updateAllPosts = allPosts.filter((po) => po?._id != id);
+        dispatch(setAllPosts(updateAllPosts));
+
+        let updateAuthUser = {
+          ...authUser,
+          posts: authUser?.posts?.filter((po) => po?._id != id),
+          bookmarks: authUser?.bookmarks?.filter((po) => po?._id != id),
+        };
+        dispatch(setAuthuser(updateAuthUser));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+ 
+
+  let userFollowHandler = async (id) => {
+    console.log(id);
+    try {
+      axios.defaults.withCredentials = true;
+      let response = await axios.patch(`${USER_API}/followtheuser/${id}`);
+      console.log(response?.data);
+
+      if (response?.data?.success) {
+        toast?.success(response?.data?.message);
+
+        // Updating authUser's following array
+        let updatedAuthUser = {
+          ...authUser,
+          following: [...authUser.following, id], // Adding the otherUser's id
+        };
+        dispatch(setAuthuser(updatedAuthUser));
+        setIsFollow(true); // Update isFollow state to true
+
+        // Find the index of the user in otherUsers
+        let userIndex = otherUsers?.findIndex((user) => user?._id === id);
+
+        // If user is found, update their followers without changing the array order
+        if (userIndex !== -1) {
+          let updatedOtherUser = {
+            ...otherUsers[userIndex],
+            followers: [...otherUsers[userIndex].followers, authUser?._id], // Add current user's ID to followers
+          };
+
+          // Create a new array with the updated user at the same index
+          let updatedOtherUsers = [
+            ...otherUsers.slice(0, userIndex),
+            updatedOtherUser,
+            ...otherUsers.slice(userIndex + 1), // ye code end tak chalega
+          ];
+
+          dispatch(setOtherUsers(updatedOtherUsers)); // Update the store with the new array
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // unfollow the user
+  let userUnfollowHandler = async (id) => {
+    try {
+      axios.defaults.withCredentials = true;
+      let response = await axios.patch(`${USER_API}/unfollowtheuser/${id}`);
+
+      if (response?.data?.success) {
+        toast?.success(response?.data?.message);
+        let updateAuthUser = {
+          ...authUser,
+          following: [...authUser.following.filter((ids) => ids != id)],
+        };
+        dispatch(setAuthuser(updateAuthUser));
+        setIsFollow(false);
+
+        let userIndex = otherUsers?.findIndex((user) => user?._id == id); // get the index of the user
+
+        if (userIndex != -1) {
+          let updateOtherUser = {
+            ...otherUsers[userIndex],
+            followers: [
+              ...authUser.followers.filter((ids) => ids != authUser?._id),
+            ],
+          };
+
+          let updatedOtherUsers = [
+            ...otherUsers.slice(0, userIndex),
+            updateOtherUser,
+            ...otherUsers.slice(userIndex + 1),
+          ];
+
+          dispatch(setOtherUsers(updatedOtherUsers));
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+ 
   return (
     <div className="w-full flex justify-center mt-6">
       <div
@@ -206,19 +345,19 @@ const Post = ({ post }) => {
           <div className="flex gap-3">
             {/* avatar */}
             <Avatar>
-              <AvatarImage src={post?.profilePhoto} />
+              <AvatarImage src={post?.author?.profilePhoto} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
 
             {/* description */}
             <div className="flex gap-2 items-center">
-              <h1>{post?.fullname}</h1>
-              <h1>Bio here...</h1>
+              <h1>{post?.author?.fullname}</h1>
+              {post?.author?._id == authUser?._id && <Badge>author</Badge>}
             </div>
           </div>
 
           {/* ... */}
-          <div>
+          <div onClick={() => dispatch(setSelectedUser(post?.author))}>
             <Dialog>
               <DialogTrigger asChild>
                 <MoreHorizontal className="cursor-pointer" />
@@ -227,14 +366,42 @@ const Post = ({ post }) => {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle className="flex gap-2 w-full">
-                    <Avatar>
-                      <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
+                    <div className="flex flex-col gap-2 w-full">
+                      <Link to={"/edit/profile"}>
+                        <Button className="w-full">Edit</Button>
+                      </Link>
 
-                    <div>
-                      <p>Ashish</p>
-                      <p>Bio here...</p>
+                      {post?.author?._id == authUser?._id ? (
+                        ""
+                      ) : (
+                        <div>
+                          {isFollow ? (
+                            <Button
+                              className="w-full "
+                              onClick={() =>
+                                userUnfollowHandler(selectedUser?._id)
+                              }
+                            >
+                              Unfollow
+                            </Button>
+                          ) : (
+                            <Button
+                              className="w-full"
+                              onClick={() =>
+                                userFollowHandler(selectedUser?._id)
+                              }
+                            >
+                              Follow
+                            </Button>
+                          )}
+                        </div>
+                      )}
+
+                      {post?.author?._id == authUser?._id && (
+                        <Button onClick={() => deletePostHandler(post?._id)}>
+                          Delete
+                        </Button>
+                      )}
                     </div>
                   </DialogTitle>
                 </DialogHeader>
@@ -274,7 +441,11 @@ const Post = ({ post }) => {
           </div>
 
           <div onClick={() => bookmarkthePostHandler(post?._id)}>
-            <Bookmark className="w-[30px] h-[30px] cursor-pointer" />
+            {isBookmarked ? (
+              <BookmarkCheckIcon className="w-[30px] h-[30px] cursor-pointer" />
+            ) : (
+              <Bookmark className="w-[30px] h-[30px] cursor-pointer" />
+            )}
           </div>
         </div>
 

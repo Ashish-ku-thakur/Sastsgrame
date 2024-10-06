@@ -4,6 +4,9 @@ import jwt from "jsonwebtoken";
 import modifiedImageBuffer from "../utils/updateImage.js";
 import cloudinary from "../utils/cloudinary.js";
 import Post from "../model/postSchema.js";
+import sharp from "sharp";
+import DataURIParser from "datauri/parser.js";
+import path from "path";
 
 export let Register = async (req, res) => {
   try {
@@ -177,12 +180,9 @@ export let FollowtheUser = async (req, res) => {
         // ),
 
         user.following.push(loveId),
-        user.save(),
         love.followers.push(userId),
-        love.save(),
       ]);
-
-      user = await User.findById(userId);
+      user.save(), love.save(), (user = await User.findById(userId));
 
       return res.status(200).json({
         message: `${user.fullname} just followed ${love.fullname}`,
@@ -281,42 +281,69 @@ export let GetSelectedUserProfile = async (req, res) => {
   }
 };
 
+// Edit user profile controller
 export let EditUserProfile = async (req, res) => {
   try {
-    let userId = req.userId;
-    let image = req.file;
-    let gender = req.body.gender;
-    let bio = req.body.bio;
+    let userId = req.userId; // User ID from authentication
+    let image = req.file; // Uploaded image file
+    let { gender, bio } = req.body; // Destructure the body for gender and bio
 
     let user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
 
-    if (bio) {
-      user.bio = bio;
-      await user.save();
-    }
-    if (gender) {
-      user.gender = gender;
-      await user.save();
-    }
+    // Update bio and gender in user profile
+    if (bio) user.bio = bio;
+    if (gender) user.gender = gender;
 
     let cloudResponse;
     if (image) {
-      let fileuri = await modifiedImageBuffer(image);
-      cloudResponse = await cloudinary.uploader.upload(fileuri);
+      try {
+        // Image processing using sharp
+        let modified = await sharp(image.buffer)
+          .resize({ width: 400, height: 400, fit: "inside" })
+          .toFormat("jpeg", { quality: 80 })
+          .toBuffer();
 
-      user.profilePhoto = cloudResponse.secure_url;
-      await user.save();
+        let parser = new DataURIParser();
+        let extname = path.extname(image.originalname);
+
+        let datauri = parser.format(extname, modified).content;
+
+        // Upload image to Cloudinary
+        cloudResponse = await cloudinary.uploader.upload(datauri);
+
+        // Save the image URL to user's profile photo
+        user.profilePhoto = cloudResponse.secure_url;
+      } catch (imageError) {
+        return res.status(500).json({
+          message: "Error processing or uploading image",
+          success: false,
+        });
+      }
     }
 
+    // Save the updated user info
+    await user.save();
+
+    // Remove sensitive information and return the updated user
     user = await User.findById(userId).select("-password");
 
     return res.status(202).json({
-      message: "user profile updated successfully",
+      message: "User profile updated successfully",
       success: true,
       user,
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      message: "Server error while updating profile",
+      success: false,
+    });
   }
 };
 
