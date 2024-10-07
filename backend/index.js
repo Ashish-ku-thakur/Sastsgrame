@@ -14,7 +14,7 @@ dotenv.config({});
 // let app = express();
 
 let corsOption = {
-  origin: process.env.FRONTEND_PORT,
+  origin: process.env.FRONTEND_PORT,     //FRONTEND_PORT=https://sastsgrame-1.onrender.com
   credentials: true,
 };
 
